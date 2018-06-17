@@ -1,7 +1,7 @@
-EXECUTABLE = {{executable}}
 PROJECT_PATH = {{project_path}}
 CFLAGS = {{cflags}}
 LDFLAGS = {{ldflags}}
+EXECUTABLE = {{executable}}
 PYTHON_CFLAGS = {{python_cflags}}
 PYTHON_LDFLAGS = {{python_ldflags}}
 SDL_CFLAGS = {{sdl_cflags}}

@@ -1,0 +1,4 @@
+include_rules
+
+: foreach *.c |> !cc |> {objs}
+: {objs} |> !stlib_link |> beer.$(STLIB_SUFFIX)

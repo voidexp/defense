@@ -25,7 +25,10 @@ CompilerSpec = collections.namedtuple(
         'cc_rule',
         'link_rule',
         'dylib_link_rule',
-        'stlib_link_rule'
+        'stlib_link_rule',
+        'inc_dir_flag',
+        'lib_dir_flag',
+        'lib_flag',
     )
 )
 
@@ -69,6 +72,10 @@ class Config():
         self.ldflags = {}
 
     def as_dict(self):
+
+        def expand_flag(fmtstr, arg):
+            return fmtstr.format(arg)
+
         config = {
             'project_path': self.project_path,
             'cc_rule': self.compiler_spec.cc_rule,
@@ -76,6 +83,9 @@ class Config():
             'dylib_link_rule': self.compiler_spec.dylib_link_rule,
             'dylib_suffix': get_platform_file_suffix(DYLIB_SUFFIXES),
             'stlib_link_rule': self.compiler_spec.stlib_link_rule,
+            'inc_dir_flag': partial(expand_flag, self.compiler_spec.inc_dir_flag),
+            'lib_dir_flag': partial(expand_flag, self.compiler_spec.lib_dir_flag),
+            'lib_flag': partial(expand_flag, self.compiler_spec.lib_flag),
             'stlib_suffix': get_platform_file_suffix(STLIB_SUFFIXES),
             'executable': self.executable,
         }
@@ -143,7 +153,10 @@ def check_gcc(debug):
                 path=path,
                 ldflags=ldflags
             ),
-            stlib_link_rule='gcc -Wl,-r -no-pie %f -o %o -nostdlib'.format(path=path)
+            stlib_link_rule='gcc -Wl,-r -no-pie %f -o %o -nostdlib'.format(path=path),
+            inc_dir_flag='-I{}',
+            lib_dir_flag='-L{}',
+            lib_flag='-l{}'
         )
 
 
