@@ -1,6 +1,4 @@
 from setuptools import setup
-from setuptools.command.build_py import build_py
-from subprocess import call
 
 
 setup(
