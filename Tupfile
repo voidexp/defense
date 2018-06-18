@@ -1,3 +1,5 @@
 include_rules
 
-: core/core.$(STLIB_SUFFIX) core/beer/beer.$(STLIB_SUFFIX) |> !link |> $(EXECUTABLE)
+LDFLAGS += $(SDL_LDFLAGS) $(PYTHON_LDFLAGS) $(BEER_LDFLAGS) -Wl,-rpath,"\$ORIGIN/core/beer"
+
+: core/core.$(STLIB_SUFFIX) | core/beer/libbeer.$(DYLIB_SUFFIX) |> !link |> $(EXECUTABLE)

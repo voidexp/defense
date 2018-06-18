@@ -1,4 +1,7 @@
 include_rules
 
+CFLAGS += $(SDL_CFLAGS) $(PYTHON_CFLAGS)
+LDFLAGS += $(SDL_LDFLAGS) $(PYTHON_LDFLAGS)
+
 : foreach *.c |> !cc |> {objs}
-: {objs} |> !stlib_link |> beer.$(STLIB_SUFFIX)
+: {objs} |> !dylib_link |> libbeer.$(DYLIB_SUFFIX)

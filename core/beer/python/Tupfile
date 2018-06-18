@@ -1,0 +1,10 @@
+include_rules
+
+CFLAGS = $(BEER_CFLAGS) $(PYTHON_CFLAGS)
+LDFLAGS = $(PYTHON_LDFLAGS) $(BEER_LDFLAGS)
+
+BEER_DYLIB = ../libbeer.$(DYLIB_SUFFIX)
+
+: build.py ../*.h | $(BEER_DYLIB) |> python build.py |> beer_cffi.c
+: beer_cffi.c |> !cc |> beer_cffi.o
+: beer_cffi.o | $(BEER_DYLIB) |> !dylib_link |> _beer.so

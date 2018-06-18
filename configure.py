@@ -26,6 +26,8 @@ CompilerSpec = collections.namedtuple(
         'link_rule',
         'dylib_link_rule',
         'stlib_link_rule',
+        'cflags',
+        'ldflags',
         'inc_dir_flag',
         'lib_dir_flag',
         'lib_flag',
@@ -83,6 +85,8 @@ class Config():
             'dylib_link_rule': self.compiler_spec.dylib_link_rule,
             'dylib_suffix': get_platform_file_suffix(DYLIB_SUFFIXES),
             'stlib_link_rule': self.compiler_spec.stlib_link_rule,
+            'cflags': self.compiler_spec.cflags,
+            'ldflags': self.compiler_spec.ldflags,
             'inc_dir_flag': partial(expand_flag, self.compiler_spec.inc_dir_flag),
             'lib_dir_flag': partial(expand_flag, self.compiler_spec.lib_dir_flag),
             'lib_flag': partial(expand_flag, self.compiler_spec.lib_flag),
@@ -135,25 +139,19 @@ def check_gcc(debug):
     path = find_executable('gcc')
     if path:
         cflags = '-Wall -Werror -Wextra -std=c99 -pedantic'
-        extra_cflags = ''
         ldflags = ''
         if debug:
-            extra_cflags = '-g'
+            cflags = cflags + ' -g -DDEBUG'
         else:
-            extra_cflags = '-O3'
+            cflags = cflags + ' -O3'
 
         return CompilerSpec(
-            cc_rule='{path} {cflags} {extra_cflags} $(CFLAGS) -fPIC -c %f -o %o'.format(
-                path=path,
-                cflags=cflags,
-                extra_cflags=extra_cflags
-            ),
-            link_rule='{path} {ldflags} $(LDFLAGS) %f -o %o'.format(path=path, ldflags=ldflags),
-            dylib_link_rule='{path} {ldflags} $(LDFLAGS) -Wl,--no-undefined -shared %f -o %o'.format(
-                path=path,
-                ldflags=ldflags
-            ),
+            cc_rule='{path} $(CFLAGS) -fPIC -c %f -o %o'.format(path=path),
+            link_rule='{path} $(LDFLAGS) %f -o %o'.format(path=path),
+            dylib_link_rule='{path} $(LDFLAGS) -shared -Wl,--no-undefined %f -o %o'.format(path=path),
             stlib_link_rule='gcc -Wl,-r -no-pie %f -o %o -nostdlib'.format(path=path),
+            cflags=cflags,
+            ldflags=ldflags,
             inc_dir_flag='-I{}',
             lib_dir_flag='-L{}',
             lib_flag='-l{}'
