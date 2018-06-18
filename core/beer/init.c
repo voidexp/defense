@@ -1,5 +1,6 @@
 #include "init.h"
 #include <SDL.h>
+#include <stdbool.h>
 
 SDL_Window *g_window = NULL;
 SDL_Renderer *g_renderer = NULL;
@@ -9,6 +10,8 @@ beer_py_init(void);
 
 extern void
 beer_py_fini(void);
+
+static bool initialized = false;
 
 beer_err
 beer_init(unsigned win_w, unsigned win_h)
@@ -36,7 +39,18 @@ beer_init(unsigned win_w, unsigned win_h)
 		return err;
 	}
 
-	atexit(beer_fini);
+	static bool finalizer_registered = false;
+	if (!finalizer_registered)
+	{
+		atexit(beer_fini);
+		finalizer_registered = true;
+	}
+
+	initialized = true;
+
+#ifdef DEBUG
+	printf("Core initialized\n");
+#endif
 
 	return BEER_OK;
 }
@@ -44,6 +58,11 @@ beer_init(unsigned win_w, unsigned win_h)
 void
 beer_fini(void)
 {
+	if (!initialized)
+	{
+		return;
+	}
+
 	beer_py_fini();
 
 	if (SDL_WasInit(SDL_INIT_VIDEO))
@@ -62,4 +81,10 @@ beer_fini(void)
 
 		SDL_Quit();
 	}
+
+	initialized = false;
+
+#ifdef DEBUG
+	printf("Core finalized\n");
+#endif
 }

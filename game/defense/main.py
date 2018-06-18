@@ -8,7 +8,7 @@ from beer.texture import Texture  # pylint: disable=import-error
 def init():
     # example usage of Texture
     tex = Texture()
-    print('Defense initialised')
+    print('Defense initialized')
 
 
 def fini():

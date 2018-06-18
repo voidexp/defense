@@ -195,19 +195,16 @@ beer_script_free(struct BeerScript *script)
 {
 	if (script)
 	{
-		if (script->data_)
+		struct ScriptData *data = (struct ScriptData*)script->data_;
+		PyObject *funcs[] = {
+			data->init_func,
+			data->fini_func
+		};
+		for (int i = 0; i < FUNC_MAX; i++)
 		{
-			struct ScriptData *data = (struct ScriptData*)script->data_;
-			PyObject *funcs[] = {
-				data->init_func,
-				data->fini_func
-			};
-			for (int i = 0; i < FUNC_MAX; i++)
-			{
-				Py_XDECREF(funcs[i]);
-			}
-			free(script->data_);
+			Py_XDECREF(funcs[i]);
 		}
+		free(script->data_);
 		free(script);
 	}
 }
