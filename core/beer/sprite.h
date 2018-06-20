@@ -1,14 +1,7 @@
 #pragma once
 
 struct BeerTexture;
-
-struct BeerRect
-{
-	int x;
-	int y;
-	unsigned w;
-	unsigned h;
-};
+struct BeerRect;
 
 struct BeerSpriteSheet
 {

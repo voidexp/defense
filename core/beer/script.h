@@ -18,7 +18,7 @@ void
 beer_script_free(struct BeerScript *script);
 
 beer_err
-beer_script_init(struct BeerScript *script);
+beer_script_invoke_init(struct BeerScript *script);
 
 beer_err
-beer_script_fini(struct BeerScript *script);
+beer_script_invoke_fini(struct BeerScript *script);

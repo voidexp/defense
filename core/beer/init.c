@@ -1,4 +1,5 @@
 #include "init.h"
+#include "renderer.h"
 #include <SDL.h>
 #include <stdbool.h>
 
@@ -21,17 +22,30 @@ beer_init(unsigned win_w, unsigned win_h)
 		return BEER_ERR_INIT;
 	}
 
-	int rc = SDL_CreateWindowAndRenderer(
-		win_w,
-		win_h,
-		0,
-		&g_window,
-		&g_renderer
+	g_window = SDL_CreateWindow(
+		"Beer",
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
+		(int)win_w,
+		(int)win_h,
+		0
 	);
-	if (rc != 0 || g_window == NULL || g_renderer == NULL)
+	if (!g_window)
 	{
 		return BEER_ERR_INIT;
 	}
+
+	g_renderer = SDL_CreateRenderer(
+		g_window,
+		-1,
+		SDL_RENDERER_ACCELERATED
+	);
+	if (!g_renderer)
+	{
+		return BEER_ERR_INIT;
+	}
+
+	SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 
 	beer_err err = beer_py_init();
 	if (err != BEER_OK)
@@ -53,6 +67,35 @@ beer_init(unsigned win_w, unsigned win_h)
 #endif
 
 	return BEER_OK;
+}
+
+beer_err
+beer_start(void)
+{
+	SDL_Event evt;
+	beer_err err = BEER_OK;
+	bool run = true;
+
+	while (run && !err)
+	{
+		while (SDL_PollEvent(&evt))
+		{
+			switch (evt.type)
+			{
+			case SDL_QUIT:
+				run = false;
+				break;
+			}
+		}
+
+		if ((err = beer_renderer_clear()) ||
+		    (err = beer_renderer_present()))
+		{
+			break;
+		}
+	}
+
+	return err;
 }
 
 void

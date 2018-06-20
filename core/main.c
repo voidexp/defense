@@ -25,10 +25,21 @@ main(int argc, char *argv[])
 		goto cleanup;
 	}
 
-	if (beer_script_init(script) != BEER_OK ||
-	    beer_script_fini(script) != BEER_OK)
+	if (beer_script_invoke_init(script) != BEER_OK)
 	{
-		printf("script execution failed\n");
+		printf("script initialization failed\n");
+		goto cleanup;
+	}
+
+	if (beer_start() != BEER_OK)
+	{
+		printf("game execution interrupted\n");
+		goto cleanup;
+	}
+
+	if (beer_script_invoke_fini(script) != BEER_OK)
+	{
+		printf("script finalization failed\n");
 		goto cleanup;
 	}
 
