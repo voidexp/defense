@@ -1,8 +1,8 @@
 Defense - a toy project 2D game
 ===============================
 Just another tower defense game which is badly designed, implemented and by all
-means a waste of time, except that it is made for fun, learning and trying out
-new (to me) technologies, concepts and tricks.
+means is a waste of time, except that it is made for fun, learning and trying
+out new (to me) technologies, concepts and tricks.
 
 The game is built on top of a custom C engine and all the logic and the actual
 game code is written in Python.
