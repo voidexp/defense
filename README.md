@@ -16,12 +16,12 @@ Try it out, fork it, hack it, and if you enjoy any part of it, let me know! :)
 The C engine has to be compiled, and there is a number of tools and libraries
 needed:
 
-    * Python 3 interpreter and development headers
-    * pip for Python 3
-    * GCC compiler
-    * [tup](http://gittup.org/tup/) build tool
-    * pkg-config (available on every UNIX flavor)
-    * SDL2 library and development headers
+* Python 3 interpreter and development headers
+* pip for Python 3
+* GCC compiler
+* [tup](http://gittup.org/tup/) build tool
+* pkg-config (available on every UNIX flavor)
+* SDL2 library and development headers
 
 ## Create and setup Python virtual environment
 Python3 `venv` module is used to create a bottled virtual environment to avoid
