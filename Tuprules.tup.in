@@ -8,8 +8,6 @@ PYTHON_CFLAGS = {{python_cflags}}
 PYTHON_LDFLAGS = {{python_ldflags}}
 SDL_CFLAGS = {{sdl_cflags}}
 SDL_LDFLAGS = {{sdl_ldflags}}
-SDL_IMAGE_CFLAGS = {{sdl_image_cflags}}
-SDL_IMAGE_LDFLAGS = {{sdl_image_ldflags}}
 DYLIB_SUFFIX = {{dylib_suffix}}
 STLIB_SUFFIX = {{stlib_suffix}}
 

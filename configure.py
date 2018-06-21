@@ -202,7 +202,6 @@ def generate_files(config):
 FINDERS = (
     ('C compiler', find_compiler),
     ('SDL2', partial(find_pkg_config, pkg_name='sdl2', store_name='sdl')),
-    ('SDL2_image', partial(find_pkg_config, pkg_name='SDL2_image', store_name='sdl_image')),
     ('Python3', partial(find_pkg_config, pkg_name='python3', store_name='python')),
 )
 
