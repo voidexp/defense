@@ -16,11 +16,11 @@ Try it out, fork it, hack it, and if you enjoy any part of it, let me know! :)
 The C engine has to be compiled, and there is a number of tools and libraries
 needed:
 
-* Python 3
+* Python 3 (version 3.6.5✔)
 * C compiler with C99 standard support
 * [tup](http://gittup.org/tup/) build tool
-* pkg-config (available on every UNIX flavor)
-* SDL2 library and development headers
+* pkg-config (for Linux/OSX library discover)
+* SDL2 development library (version 2.0.8✔)
 
 ## Create and setup Python virtual environment
 Python3 `venv` module is used to create a bottled virtual environment to avoid
@@ -63,7 +63,7 @@ On Linux/OSX:
 On Windows you have to specify explicitly the paths to development headers and
 libraries using command-line options, for example:
 
-    python configure.py --sdl-incpath=C:\SDKs\SDL2-2.0.7\include --sdl-libpath=C:\SDKs\SDL2-2.0.7\lib\x64 --python-incpath=C:\Python36\include --python-libpath=C:\Python36\libs
+    python configure.py --sdl-incpath=C:\SDKs\SDL2-2.0.8\include --sdl-libpath=C:\SDKs\SDL2-2.0.8\lib\x64 --python-incpath=C:\Python36\include --python-libpath=C:\Python36\libs
 
 For additional options and their meanings, check
 
