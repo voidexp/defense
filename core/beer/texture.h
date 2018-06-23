@@ -1,5 +1,6 @@
 #pragma once
 
+#include "defs.h"
 #include "error.h"
 
 enum BeerPixelFormat
@@ -20,8 +21,8 @@ struct BeerTexture
 	void *data_;
 };
 
-beer_err
+BEER_API beer_err
 beer_texture_from_buffer(enum BeerPixelFormat fmt, int width, int height, char *data, struct BeerTexture **r_tex);
 
-void
+BEER_API void
 beer_texture_free(struct BeerTexture *tex);

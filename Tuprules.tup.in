@@ -1,3 +1,4 @@
+BUILD_MODE = {{build_mode}}
 PROJECT_PATH = {{project_path}}
 CFLAGS = {{cflags}}
 LDFLAGS = {{ldflags}}
@@ -10,8 +11,9 @@ SDL_CFLAGS = {{sdl_cflags}}
 SDL_LDFLAGS = {{sdl_ldflags}}
 DYLIB_SUFFIX = {{dylib_suffix}}
 STLIB_SUFFIX = {{stlib_suffix}}
+OBJ_SUFFIX = {{obj_suffix}}
 
-!cc = |> {{cc_rule}} |> %B.o
+!cc = |> {{cc_rule}} |> %B.$(OBJ_SUFFIX)
 !link = |> {{link_rule}} |>
 !dylib_link = |> {{dylib_link_rule}} |>
 !stlib_link = |> {{stlib_link_rule}} |>

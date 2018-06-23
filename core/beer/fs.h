@@ -1,5 +1,6 @@
 #pragma once
 
+#include "defs.h"
 #include "error.h"
 #include <stdbool.h>
 #include <stddef.h>
@@ -11,17 +12,17 @@ enum BeerFileType
 	BEER_FILE_TYPE_FILE
 };
 
-beer_err
+BEER_API beer_err
 beer_dir_list(const char *path, char **r_paths[], int *r_paths_len);
 
-beer_err
+BEER_API beer_err
 beer_file_get_type(const char *path, enum BeerFileType *type);
 
-beer_err
+BEER_API beer_err
 beer_file_read(const char *path, char **r_data, size_t *r_size);
 
-bool
+BEER_API bool
 beer_path_exists(const char *path);
 
-char*
+BEER_API char*
 beer_path_join(const char **paths, int paths_len);

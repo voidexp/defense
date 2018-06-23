@@ -71,15 +71,8 @@ beer_renderer_add_sprite_node(struct BeerSprite *sprite, struct BeerRenderNode *
 
 beer_err
 beer_renderer_remove_node(struct BeerRenderNode *node);
-
-beer_err
-beer_renderer_clear(void);
-
-beer_err
-beer_renderer_present(void);
-
 """)
 
 
 if __name__ == '__main__':
-    ffibuilder.emit_c_code('beer_cffi.c')
+    ffibuilder.emit_c_code('_beer.c')

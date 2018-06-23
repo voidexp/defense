@@ -16,9 +16,8 @@ Try it out, fork it, hack it, and if you enjoy any part of it, let me know! :)
 The C engine has to be compiled, and there is a number of tools and libraries
 needed:
 
-* Python 3 interpreter and development headers
-* pip for Python 3
-* GCC compiler
+* Python 3
+* C compiler with C99 standard support
 * [tup](http://gittup.org/tup/) build tool
 * pkg-config (available on every UNIX flavor)
 * SDL2 library and development headers
@@ -27,37 +26,67 @@ needed:
 Python3 `venv` module is used to create a bottled virtual environment to avoid
 messing the global one with project-specific packages.
 
-    $ python3 -m venv .env
-    $ . .env/bin/activate       # for Bash shell
-    $ . .env/bin/activate.fish  # for Fish shell (my preference)
+    python3 -m venv .env
+
+By "activating" it, a number of shell variables will be overridden such a way
+that the local Python interpreter will be used and not the system one.
+
+On Linux/OSX if using Bash:
+
+    source .env/bin/activate
+
+On Windows in CMD/PowerShell
+
+    .env\Scripts\activate
 
 Install the build-environment packages:
 
-    $ pip install -r requirements.txt
+    pip install -r requirements.txt
 
 _NOTE: these packages are required by build scripts._
 
 Install the game runtime packages into engine's directory:
 
-    $ pip install -t core/beer/python requirements-game.txt
+    pip install -t core/beer/python requirements-game.txt
 
 _NOTE: these packages are available to game's Python runtime for import, add
 there anything you'd need._
 
-## Compile the engine's core
+## Compile the engine
 First, run the `configure.py` script which will attempt to find the compiler,
 libraries and whatever is needed and generate build rules:
 
-    $ ./configure.py
+On Linux/OSX:
 
-The build command is the simplest one, assuming you have `tup` installed:
+    python configure.py
 
-    $ tup
+On Windows you have to specify explicitly the paths to development headers and
+libraries using command-line options, for example:
+
+    python configure.py --sdl-incpath=C:\SDKs\SDL2-2.0.7\include --sdl-libpath=C:\SDKs\SDL2-2.0.7\lib\x64 --python-incpath=C:\Python36\include --python-libpath=C:\Python36\libs
+
+For additional options and their meanings, check
+
+    python configure.py --help
+
+The build command is the simplest one, assuming you have `tup` in system PATH:
+
+    tup
 
 
 # Play!
-On successful build, you will have a `defense-x86_64` executable (on 64-bit
-architecture) in the project's root directory, just execute it:
+On successful build, you will have the game executable placed in `core/`,
+however, it may be necessary to specify also the library paths before runnning
+it, otherwise the loader won't be able to resolve missing DLLs:
 
-    $ ./defense-x86_64
+Linux/OSX example:
 
+    LD_LIBRARY_PATH=core/beer core/defense-x86_64
+
+Windows example:
+
+    set PATH=%PATH%;core/beer;C:\SDKs\SDL2-2.0.7\lib\x64;C:\Python36
+    core/defense-amd64.exe
+
+NOTE: On Windows you can also copy-paste the required DLLs right into the
+directory where the executable is located.

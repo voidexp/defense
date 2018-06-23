@@ -1,3 +1,11 @@
 *.o
 *.a
 *.so
+*.dll
+*.obj
+*.exp
+*.ilk
+*.lib
+*.pdb
+*.pyd
+/defense-*

@@ -3,7 +3,6 @@
 #include "error.h"
 #include "fs.h"
 #include <assert.h>
-#include <dirent.h>
 #include <errno.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -12,7 +11,11 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
+
+#ifdef __unix__
+# include <unistd.h>
+# include <dirent.h>
+#endif
 
 extern int errno;
 
@@ -37,6 +40,7 @@ errno_to_beer_err(void)
 beer_err
 beer_dir_list(const char *path, char **r_paths[], int *r_paths_len)
 {
+#ifdef __unix__
 	// open the directory
 	DIR *dir = opendir(path);
 	if (dir == NULL)
@@ -66,6 +70,7 @@ beer_dir_list(const char *path, char **r_paths[], int *r_paths_len)
 
 	*r_paths = paths;
 	*r_paths_len = len;
+#endif
 
 	return BEER_OK;
 }
@@ -76,6 +81,7 @@ beer_file_get_type(const char *path, enum BeerFileType *type)
 	assert(path);
 	assert(type);
 
+#ifdef __unix__
 	struct stat st;
 	if (stat(path, &st) != 0)
 	{
@@ -94,6 +100,7 @@ beer_file_get_type(const char *path, enum BeerFileType *type)
 	{
 		*type = BEER_FILE_TYPE_OTHER;
 	}
+#endif
 
 	return BEER_OK;
 }

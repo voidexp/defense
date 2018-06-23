@@ -1,5 +1,6 @@
 #pragma once
 
+#include "defs.h"
 #include "error.h"
 
 struct BeerScript
@@ -11,14 +12,14 @@ struct BeerScript
 	void *data_;
 };
 
-beer_err
+BEER_API beer_err
 beer_script_load(const char *path, struct BeerScript **r_script);
 
-void
+BEER_API void
 beer_script_free(struct BeerScript *script);
 
-beer_err
+BEER_API beer_err
 beer_script_invoke_init(struct BeerScript *script);
 
-beer_err
+BEER_API beer_err
 beer_script_invoke_fini(struct BeerScript *script);

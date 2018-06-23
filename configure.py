@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from functools import partial
+from itertools import chain
 import click
 import collections
 import pystache as mustache
@@ -11,12 +12,51 @@ import subprocess as sp
 
 
 PROJECT_PATH = os.getcwd()
-EXECUTABLE_NAME = '{}-{}'.format(os.path.basename(PROJECT_PATH).lower(), platform.machine())
 
 
 GEN_FILES = {
     'Tuprules.tup.in': 'Tuprules.tup',
 }
+
+
+DYLIB_SUFFIXES = {
+    'darwin': 'dylib',
+    'linux': 'so',
+    'win': 'dll',
+}
+
+
+STLIB_SUFFIXES = {
+    'darwin': 'a',
+    'linux': 'a',
+    'win': 'lib',
+}
+
+
+OBJ_SUFFIXES = {
+    'darwin': 'o',
+    'linux': 'o',
+    'win': 'obj',
+}
+
+
+IS_WINDOWS = sys.platform.startswith('win')
+IS_LINUX = sys.platform.startswith('linux')
+IS_OSX = sys.platform.startswith('darwin')
+
+
+def get_platform_file_suffix(suffix_map):
+    for k, v in suffix_map.items():
+        if sys.platform.startswith(k):
+            return v
+
+    raise UnsupportedPlatformError
+
+
+EXECUTABLE_NAME = '{}-{}'.format(
+    os.path.basename(PROJECT_PATH).lower(),
+    platform.machine().lower()
+)
 
 
 CompilerSpec = collections.namedtuple(
@@ -35,30 +75,10 @@ CompilerSpec = collections.namedtuple(
 )
 
 
-DYLIB_SUFFIXES = {
-    'darwin': 'dylib',
-    'linux': 'so',
-}
-
-
-STLIB_SUFFIXES = {
-    'darwin': 'a',
-    'linux': 'a',
-}
-
-
 class UnsupportedPlatformError(RuntimeError):
 
     def __init__(self):
         super(UnsupportedPlatformError, self).__init__('unsupported platform "{}"'.format(sys.platform))
-
-
-def get_platform_file_suffix(suffix_map):
-    for k, v in suffix_map.items():
-        if sys.platform.startswith(k):
-            return v
-
-    raise UnsupportedPlatformError
 
 
 class Config():
@@ -66,6 +86,8 @@ class Config():
     def __init__(self, **kwargs):
         self.executable = kwargs.get('executable', EXECUTABLE_NAME)
         self.project_path = kwargs.get('project_path', PROJECT_PATH)
+        self.inc_paths = kwargs.get('inc_paths', {})
+        self.lib_paths = kwargs.get('lib_paths', {})
         self.debug = kwargs.get('debug', True)
         self.compiler_spec = None
         self.objects = []
@@ -80,6 +102,7 @@ class Config():
 
         config = {
             'project_path': self.project_path,
+            'build_mode': 'debug' if self.debug else 'release',
             'cc_rule': self.compiler_spec.cc_rule,
             'link_rule': self.compiler_spec.link_rule,
             'dylib_link_rule': self.compiler_spec.dylib_link_rule,
@@ -91,11 +114,12 @@ class Config():
             'lib_dir_flag': partial(expand_flag, self.compiler_spec.lib_dir_flag),
             'lib_flag': partial(expand_flag, self.compiler_spec.lib_flag),
             'stlib_suffix': get_platform_file_suffix(STLIB_SUFFIXES),
+            'obj_suffix': get_platform_file_suffix(OBJ_SUFFIXES),
             'executable': self.executable,
         }
 
-        config.update({'{}_cflags'.format(key): value for key, value in self.cflags.items()})
-        config.update({'{}_ldflags'.format(key): value for key, value in self.ldflags.items()})
+        config.update({'{}_cflags'.format(key): ' '.join(sorted(value)) for key, value in self.cflags.items()})
+        config.update({'{}_ldflags'.format(key): ' '.join(sorted(value)) for key, value in self.ldflags.items()})
 
         return config
 
@@ -149,7 +173,7 @@ def check_gcc(debug):
             cc_rule='{path} $(CFLAGS) -fPIC -c %f -o %o'.format(path=path),
             link_rule='{path} $(LDFLAGS) %f -o %o'.format(path=path),
             dylib_link_rule='{path} $(LDFLAGS) -shared -Wl,--no-undefined %f -o %o'.format(path=path),
-            stlib_link_rule='gcc -Wl,-r -no-pie %f -o %o -nostdlib'.format(path=path),
+            stlib_link_rule='{path} -Wl,-r -no-pie %f -o %o -nostdlib'.format(path=path),
             cflags=cflags,
             ldflags=ldflags,
             inc_dir_flag='-I{}',
@@ -158,8 +182,34 @@ def check_gcc(debug):
         )
 
 
+def check_msvc(debug):
+    cl_path = find_executable('cl.exe')
+    link_path = find_executable('link.exe')
+    lib_path = find_executable('lib.exe')
+    if cl_path and link_path and lib_path:
+        if debug:
+            cflags = ' /Od /DDEBUG /DEBUG /Zi /FS'
+            ldflags = '/DEBUG:FULL'
+        else:
+            cflags = ''
+            ldflags = ''
+
+        return CompilerSpec(
+            cc_rule='{path} /TC /nologo /Fo:%o $(CFLAGS) /c %f'.format(path=cl_path),
+            link_rule='{path} /NOLOGO /OUT:%o $(LDFLAGS) /SUBSYSTEM:WINDOWS %f'.format(path=link_path),
+            dylib_link_rule='{path} /NOLOGO /OUT:%o /IMPLIB:%O.lib /DLL $(LDFLAGS) /SUBSYSTEM:WINDOWS %f'.format(path=link_path),
+            stlib_link_rule='{path} /NOLOGO /OUT:%o $(LDFLAGS) /SUBSYSTEM:WINDOWS %f'.format(path=lib_path),
+            cflags=cflags,
+            ldflags=ldflags,
+            inc_dir_flag='/I {}',
+            lib_dir_flag='/LIBPATH:{}',
+            lib_flag='{}.lib'
+        )
+
+
 COMPILERS = {
-    'GCC': check_gcc
+    'GCC': check_gcc,
+    'MSVC': check_msvc,
 }
 
 
@@ -189,6 +239,56 @@ def find_pkg_config(config, pkg_name, store_name=None):
         return False
 
 
+def find_lib(config, lib_name, store_name=None):
+    lib_filename = '{}.lib'.format(lib_name)
+    if store_name is None:
+        store_name = lib_name
+
+    for path in config.lib_paths.get(store_name, []):
+        for filename in os.listdir(path):
+            abs_filename = os.path.join(path, filename)
+            if filename == lib_filename and os.path.isfile(abs_filename):
+                ldflags = config.ldflags.setdefault(store_name, set())
+                ldflags.add(config.compiler_spec.lib_dir_flag.format(path))
+                ldflags.add(config.compiler_spec.lib_flag.format(lib_name))
+                return True
+
+
+def find_header(config, header_name, store_name=None):
+    if store_name is None:
+        store_name = os.path.splitext(os.path.basename())[0]
+
+    for path in config.inc_paths.get(store_name, []):
+        for filename in os.listdir(path):
+            abs_filename = os.path.join(path, filename)
+            if filename == header_name and os.path.isfile(abs_filename):
+                cflags = config.cflags.setdefault(store_name, set())
+                cflags.add(config.compiler_spec.inc_dir_flag.format(path))
+                return True
+
+
+def find_sdl2(config):
+    libs = ['SDL2']
+    headers = ['SDL.h']
+    if IS_WINDOWS:
+        libs.append('SDL2main')
+
+    return all(chain(
+        (find_lib(config, lib, 'sdl') for lib in libs),
+        (find_header(config, header, 'sdl') for header in headers)
+    ))
+
+
+def find_python3(config):
+    libs = ['python36']
+    headers = ['Python.h']
+
+    return all(chain(
+        (find_lib(config, lib, 'python') for lib in libs),
+        (find_header(config, header, 'python') for header in headers)
+    ))
+
+
 def generate_files(config):
     context = config.as_dict()
 
@@ -200,21 +300,55 @@ def generate_files(config):
 
 
 FINDERS = (
-    ('C compiler', find_compiler),
-    ('SDL2', partial(find_pkg_config, pkg_name='sdl2', store_name='sdl')),
-    ('Python3', partial(find_pkg_config, pkg_name='python3', store_name='python')),
+    ('C compiler', 'cc', find_compiler),
+    ('SDL2', 'sdl', find_sdl2),
+    ('Python3', 'python', find_python3),
 )
+
+
+def lib_options(lib_specs):
+
+    def wrapper(func):
+        for user_name, lib_name, _ in lib_specs:
+            func = click.option(
+                '--{}-libpath'.format(lib_name),
+                type=click.Path(exists=True, file_okay=False, dir_okay=True),
+                multiple=True,
+                help='{} library search path'.format(user_name)
+            )(func)
+
+            func = click.option(
+                '--{}-incpath'.format(lib_name),
+                type=click.Path(exists=True, file_okay=False, dir_okay=True),
+                multiple=True,
+                help='{} headers search path'.format(user_name)
+            )(func)
+
+        return func
+
+    return wrapper
 
 
 @click.command()
 @click.option('--executable', type=str, default=EXECUTABLE_NAME,
-              help='target executable name (default: "{}")'.format(EXECUTABLE_NAME))
-def configure(executable):
+              help='output executable (default: "{}")'.format(EXECUTABLE_NAME))
+@lib_options(FINDERS)
+def configure(executable, **kwargs):
     """Configures the project and creates the building configuration."""
-    config = Config()
+
+    def get_paths(suffix):
+        return {
+            key.replace(suffix, ''): path for key, path in kwargs.items()
+            if key.endswith(suffix)
+        }
+
+    inc_paths = get_paths('_incpath')
+    lib_paths = get_paths('_libpath')
+
+    config = Config(inc_paths=inc_paths, lib_paths=lib_paths)
     config.executable = executable
 
-    for name, find_func in FINDERS:
+    for name, _, find_func in FINDERS:
         print('Checking for {}...'.format(name), end=' ')
         result = find_func(config)
         if result:
@@ -224,6 +358,7 @@ def configure(executable):
                 print(result)
         else:
             print('not found')
+            print('Abort')
             exit(1)
 
     generate_files(config)

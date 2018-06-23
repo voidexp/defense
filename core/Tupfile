@@ -1,4 +1,16 @@
 include_rules
 
+CFLAGS += $(SDL_CFLAGS) $(BEER_CFLAGS) $(PYTHON_CFLAGS)
+LDFLAGS += $(SDL_LDFLAGS) $(BEER_LDFLAGS) $(PYTHON_LDFLAGS)
+
 : foreach *.c |> !cc |> {objs}
-: {objs} |> !stlib_link |> core.$(STLIB_SUFFIX)
+
+ifeq (@(TUP_PLATFORM),win32)
+    ifeq ($(BUILD_MODE),debug)
+        : {objs} | beer/<beer> |> !link |> $(EXECUTABLE).exe | $(EXECUTABLE).lib $(EXECUTABLE).exp $(EXECUTABLE).pdb $(EXECUTABLE).ilk
+    else
+        : {objs} | beer/<beer> |> !link |> $(EXECUTABLE).exe | $(EXECUTABLE).lib $(EXECUTABLE).exp
+    endif
+else
+: {objs} | beer/<beer> |> !link |> $(EXECUTABLE)
+endif

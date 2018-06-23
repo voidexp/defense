@@ -3,8 +3,13 @@ include_rules
 CFLAGS = $(BEER_CFLAGS) $(PYTHON_CFLAGS)
 LDFLAGS = $(PYTHON_LDFLAGS) $(BEER_LDFLAGS)
 
-BEER_DYLIB = ../libbeer.$(DYLIB_SUFFIX)
+: build.py | ../<beer> |> python build.py |> _beer.c
+: _beer.c |> !cc |> {objs}
 
-: build.py ../*.h | $(BEER_DYLIB) |> python build.py |> beer_cffi.c
-: beer_cffi.c |> !cc |> beer_cffi.o
-: beer_cffi.o | $(BEER_DYLIB) |> !dylib_link |> _beer.so
+ifeq (@(TUP_PLATFORM),win32)
+# Note that on Windows the DLL extension is .pyd!
+# This is mandatory, otherwise the Python interpreter won't import the module.
+: {objs} | ../<beer> |> !dylib_link |> _beer.pyd | _beer.exp _beer.lib
+else
+: {objs} | ../<beer> |> !dylib_link |> _beer.so
+endif

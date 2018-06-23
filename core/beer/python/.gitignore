@@ -1,8 +1,11 @@
 .eggs
 *.egg-info
-beer_cffi.c
+*.dist-info
+_beer.c
 build
 dist
 __pycache__
-/PIL
-/Pillow*
+PIL
+Pillow*
+cffi/
+pycparser/

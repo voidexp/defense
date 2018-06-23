@@ -1,13 +1,13 @@
+#include "beer/beer.h"
+#include <SDL.h>
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "beer/beer.h"
 
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
