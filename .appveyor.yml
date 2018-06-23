@@ -1,0 +1,40 @@
+os: Visual Studio 2017
+
+platform:
+  - x64
+
+branches:
+  only:
+    - master
+
+environment:
+  global:
+    SDK: C:\sdk
+    SDL2_URL: https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip
+    SDL2_SDK: C:\sdk\sdl2\SDL2-2.0.8
+    TUP_URL: http://gittup.org/tup/win32/tup-latest.zip
+    TUP_SDK: C:\sdk\tup
+    PYTHON3_SDK: C:\Python36-x64
+
+install:
+  - mkdir %SDK%
+
+  # Download SDL2
+  - curl -fsS -o sdl2.zip %SDL2_URL%
+  - 7z x sdl2.zip -o%SDK%\sdl2
+
+  # Download tup
+  - curl -fsS -o tup.zip %TUP_URL%
+  - 7z x tup.zip -o%SDK%\tup
+
+build_script:
+  - set PATH=%PYTHON3_SDK%;%TUP_SDK%;%SDL2_SDK%;%PATH%
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - python -m venv .env
+  - .env\Scripts\activate
+  - python -m pip install --upgrade pip
+  - python -m pip install -r requirements.txt
+  - python -m pip install -t core\beer\python -r core\beer\python\requirements-game.txt
+  - python configure.py --sdl-incpath=%SDL2_SDK%\include --sdl-libpath=%SDL2_SDK%\lib\x64 --python-incpath=%PYTHON3_SDK%\include --python-libpath=%PYTHON3_SDK%\libs
+  - tup
