@@ -230,10 +230,13 @@ def find_pkg_config(config, pkg_name, store_name=None):
     store_name = store_name or pkg_name
 
     try:
-        cflags = sp.check_output([pkgconfig, pkg_name, '--cflags']).strip()
-        ldflags = sp.check_output([pkgconfig, pkg_name, '--libs']).strip()
-        config.cflags[store_name] = cflags
-        config.ldflags[store_name] = ldflags
+        ldflags = sp.check_output([pkgconfig, pkg_name, '--libs']).strip().decode('utf8')
+        ldflags_set = config.ldflags.setdefault(store_name, set())
+        ldflags_set.add(ldflags)
+
+        cflags = sp.check_output([pkgconfig, pkg_name, '--cflags']).strip().decode('utf8')
+        cflags_set = config.cflags.setdefault(store_name, set())
+        cflags_set.add(cflags)
         return True
     except sp.CalledProcessError:
         return False
@@ -268,25 +271,27 @@ def find_header(config, header_name, store_name=None):
 
 
 def find_sdl2(config):
-    libs = ['SDL2']
-    headers = ['SDL.h']
     if IS_WINDOWS:
-        libs.append('SDL2main')
-
-    return all(chain(
-        (find_lib(config, lib, 'sdl') for lib in libs),
-        (find_header(config, header, 'sdl') for header in headers)
-    ))
+        libs = ['SDL2', 'SDL2main']
+        headers = ['SDL.h']
+        return all(chain(
+            (find_lib(config, lib, 'sdl') for lib in libs),
+            (find_header(config, header, 'sdl') for header in headers)
+        ))
+    else:
+        return find_pkg_config(config, 'sdl2', 'sdl')
 
 
 def find_python3(config):
-    libs = ['python36']
-    headers = ['Python.h']
-
-    return all(chain(
-        (find_lib(config, lib, 'python') for lib in libs),
-        (find_header(config, header, 'python') for header in headers)
-    ))
+    if IS_WINDOWS:
+        libs = ['python36']
+        headers = ['Python.h']
+        return all(chain(
+            (find_lib(config, lib, 'python') for lib in libs),
+            (find_header(config, header, 'python') for header in headers)
+        ))
+    else:
+        return find_pkg_config(config, 'python3', 'python')
 
 
 def generate_files(config):

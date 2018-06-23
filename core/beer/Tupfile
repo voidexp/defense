@@ -8,5 +8,5 @@ LDFLAGS += $(SDL_LDFLAGS) $(PYTHON_LDFLAGS)
 ifeq (@(TUP_PLATFORM),win32)
 : {objs} |> !dylib_link |> beer.dll | beer.exp beer.lib beer.pdb beer.ilk <beer>
 else
-: {objs} |> !dylib_link |> beer.$(DYLIB_SUFFIX) <beer>
+: {objs} |> !dylib_link |> libbeer.$(DYLIB_SUFFIX) <beer>
 endif
