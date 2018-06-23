@@ -7,9 +7,9 @@ LDFLAGS += $(SDL_LDFLAGS) $(BEER_LDFLAGS) $(PYTHON_LDFLAGS)
 
 ifeq (@(TUP_PLATFORM),win32)
     ifeq ($(BUILD_MODE),debug)
-        : {objs} | beer/<beer> |> !link |> $(EXECUTABLE).exe | $(EXECUTABLE).lib $(EXECUTABLE).exp $(EXECUTABLE).pdb $(EXECUTABLE).ilk
+        : {objs} | beer/<beer> |> !link |> $(EXECUTABLE).exe | $(EXECUTABLE).pdb $(EXECUTABLE).ilk
     else
-        : {objs} | beer/<beer> |> !link |> $(EXECUTABLE).exe | $(EXECUTABLE).lib $(EXECUTABLE).exp
+        : {objs} | beer/<beer> |> !link |> $(EXECUTABLE).exe
     endif
 else
 : {objs} | beer/<beer> |> !link |> $(EXECUTABLE)
