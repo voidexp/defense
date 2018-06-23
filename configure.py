@@ -291,7 +291,7 @@ def find_python3(config):
             (find_header(config, header, 'python') for header in headers)
         ))
     else:
-        return find_pkg_config(config, 'python3', 'python')
+        return find_pkg_config(config, 'python-3.6', 'python')
 
 
 def generate_files(config):

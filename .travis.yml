@@ -3,20 +3,56 @@ sudo: false
 language: c
 compiler: gcc
 
+env:
+  global:
+    TUP_PREFIX: $HOME/tup
+    SDL_VERSION: 2.0.8
+    SDL_URL: https://www.libsdl.org/release/SDL2-${SDL_VERSION}.tar.gz
+    SDL_PREFIX: $HOME/sdl2"
+    TOOLCHAIN: "CC=gcc-7 && CXX=g++-7"
+
+
 addons:
   apt:
     update: true
+    sources:
+      - deadsnakes
+      - ubuntu-toolchain-r-test
+    packages:
+      - libsdl2-dev
+      - fuse
+      - libfuse-dev
+      - python3.6-dev
+      - python3.6-venv
+      - pkg-config
+      - g++-7
+
 
 before_install:
-  - sudo apt-add-repository 'deb http://ppa.launchpad.net/anatol/tup/ubuntu trusty main'
-  - sudo apt-get update -q
-  - sudo apt-get install -y libsdl2-dev python3 python3-dev tup
+  - eval "${TOOLCHAIN}"
+  - sudo modprobe fuse
+  - sudo chmod 666 /dev/fuse
+  - sudo chown root:$USER /etc/fuse.conf
 
-script: |
-  python3 -m venv .env
-  . .env/bin/activate
-  python pip install --upgrade pip
-  python pip install -r requirements.txt
-  python pip install -t core/beer/python -r core/beer/python/requirements-game.txt
-  python configure.py
-  tup
+  - cd $HOME
+  - git clone git://github.com/gittup/tup.git $TUP_PREFIX
+  - cd $TUP_PREFIX
+  - sh bootstrap.sh
+  - $TUP_PREFIX/tup -v
+
+  - cd $HOME
+  - travis_retry curl -L $SDL_URL | tar xz
+  - cd SDL2-$SDL_VERSION
+  - ./configure --prefix=$SDL_PREFIX
+  - make -j4
+  - sudo make install
+
+script:
+  - cd $TRAVIS_BUILD_DIR
+  - python3.6 -m venv .env
+  - source .env/bin/activate
+  - python -m pip install --upgrade pip
+  - python -m pip install -r requirements.txt
+  - python -m pip install -t core/beer/python -r core/beer/python/requirements-game.txt
+  - PKG_CONFIG_PATH=$SDL_PREFIX/lib/pkgconfig python configure.py
+  - $TUP_PREFIX/tup
