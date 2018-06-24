@@ -5,10 +5,10 @@ compiler: gcc
 
 env:
   global:
-    TUP_PREFIX: $HOME/tup
-    SDL_VERSION: 2.0.8
-    SDL_URL: https://www.libsdl.org/release/SDL2-${SDL_VERSION}.tar.gz
-    SDL_PREFIX: $HOME/sdl2"
+    - TUP_PREFIX=$HOME/tup
+    - SDL_VERSION=2.0.8
+    - SDL_URL="https://www.libsdl.org/release/SDL2-${SDL_VERSION}.tar.gz"
+    - SDL_PREFIX=$HOME/sdl2
 
 addons:
   apt:
