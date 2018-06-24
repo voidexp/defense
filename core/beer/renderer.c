@@ -21,7 +21,7 @@ struct BeerRenderNode
 	void *data;
 };
 
-static struct BeerRenderNode render_list[RENDER_LIST_LEN] = {{NODE_TYPE_NONE}};
+static struct BeerRenderNode render_list[RENDER_LIST_LEN] = {{NODE_TYPE_NONE, NULL}};
 
 static beer_err
 alloc_node(struct BeerRenderNode **r_node)

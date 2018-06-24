@@ -12,7 +12,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifdef __unix__
+#ifdef BEER_ON_UNIX
 # include <unistd.h>
 # include <dirent.h>
 #endif
@@ -40,7 +40,7 @@ errno_to_beer_err(void)
 beer_err
 beer_dir_list(const char *path, char **r_paths[], int *r_paths_len)
 {
-#ifdef __unix__
+#ifdef BEER_ON_UNIX
 	// open the directory
 	DIR *dir = opendir(path);
 	if (dir == NULL)
@@ -81,7 +81,7 @@ beer_file_get_type(const char *path, enum BeerFileType *type)
 	assert(path);
 	assert(type);
 
-#ifdef __unix__
+#ifdef BEER_ON_UNIX
 	struct stat st;
 	if (stat(path, &st) != 0)
 	{
