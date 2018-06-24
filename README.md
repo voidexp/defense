@@ -1,6 +1,7 @@
 Defense - a toy project 2D game
 ===============================
-[![Build status](https://ci.appveyor.com/api/projects/status/kooq7i56g265xo9y?svg=true)](https://ci.appveyor.com/project/V0idExp/defense) [![Build Status](https://travis-ci.org/V0idExp/defense.svg?branch=master&label=Linux)](https://travis-ci.org/V0idExp/defense)
+[![AppVeyor](https://img.shields.io/appveyor/ci/V0idExp/defense.svg?label=windows&style=flat-square)](https://ci.appveyor.com/project/V0idExp/defense)
+[![Travis](https://img.shields.io/travis/V0idExp/defense.svg?label=linux&style=flat-square)](https://travis-ci.org/V0idExp/defense)
 
 Just another tower defense game which is badly designed, implemented and by all
 means is a waste of time, except that it is made for fun, learning and trying
