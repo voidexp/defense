@@ -172,7 +172,7 @@ def check_gcc(debug):
         if IS_OSX:
             dylib_link_rule = '{path} $(LDFLAGS) -shared -Wl,-undefined,error %f -o %o'.format(path=path)
         else:
-            dylib_link_rule = '{path} $(LDFLAGS) -shared -Wl,--no-undefined %f -o %o'.format(path=path)
+            dylib_link_rule = '{path} $(LDFLAGS) -shared -Wl,--no-allow-shlib-undefined %f -o %o'.format(path=path)
 
         return CompilerSpec(
             cc_rule='{path} $(CFLAGS) -fPIC -c %f -o %o'.format(path=path),

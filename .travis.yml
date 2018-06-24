@@ -9,15 +9,12 @@ env:
     SDL_VERSION: 2.0.8
     SDL_URL: https://www.libsdl.org/release/SDL2-${SDL_VERSION}.tar.gz
     SDL_PREFIX: $HOME/sdl2"
-    TOOLCHAIN: "CC=gcc-7 && CXX=g++-7"
-
 
 addons:
   apt:
     update: true
     sources:
       - deadsnakes
-      - ubuntu-toolchain-r-test
     packages:
       - libsdl2-dev
       - fuse
@@ -25,8 +22,6 @@ addons:
       - python3.6-dev
       - python3.6-venv
       - pkg-config
-      - g++-7
-
 
 before_install:
   - eval "${TOOLCHAIN}"
@@ -41,6 +36,8 @@ before_install:
   - $TUP_PREFIX/tup -v
 
   - cd $HOME
+  - echo $SDL_URL
+  - gcc -v
   - travis_retry curl -L $SDL_URL | tar xz
   - cd SDL2-$SDL_VERSION
   - ./configure --prefix=$SDL_PREFIX
