@@ -7,7 +7,16 @@
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
 
-int main(int argc, char *argv[])
+static struct BeerScript *script = NULL;
+
+static bool
+update(float dt)
+{
+	return beer_script_invoke_update(script, dt) == BEER_OK;
+}
+
+int
+main(int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
@@ -16,8 +25,6 @@ int main(int argc, char *argv[])
 	{
 		return EXIT_FAILURE;
 	}
-
-	struct BeerScript *script = NULL;
 
 	if (beer_script_load("game/defense/main.py", &script) != BEER_OK)
 	{
@@ -31,7 +38,7 @@ int main(int argc, char *argv[])
 		goto cleanup;
 	}
 
-	if (beer_start() != BEER_OK)
+	if (beer_run(update) != BEER_OK)
 	{
 		printf("game execution interrupted\n");
 		goto cleanup;

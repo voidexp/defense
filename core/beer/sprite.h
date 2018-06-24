@@ -16,7 +16,7 @@ struct BeerSpriteSheet
 struct BeerSprite
 {
 	// position
-	int x, y;
+	float x, y;
 
 	// current frame
 	int frame;

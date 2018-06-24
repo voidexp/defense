@@ -2,7 +2,8 @@
 Defense base game entry point.
 """
 
-from beer.texture import Texture  # pylint: disable=import-error
+import time
+from beer.texture import Texture
 from beer.sprite import Sheet
 from beer.sprite import Sprite
 
@@ -22,10 +23,14 @@ def init():
     global sprite
     sprite = Sprite(sheet)
     sprite.visible = True
-    sprite.x = int(800 / 2 - 16 / 2)
-    sprite.y = int(600 / 2 - 16 / 2)
+    sprite.x = 800 / 2 - 16 / 2
+    sprite.y = 600 / 2 - 16 / 2
 
     print('Defense initialized')
+
+
+def update(dt):
+    sprite.x += dt * 10
 
 
 def fini():

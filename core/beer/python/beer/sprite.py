@@ -24,8 +24,8 @@ class Sprite:
 
     def __init__(self, sheet):
         self.__ptr = ffi.new('struct BeerSprite*')
-        self.__ptr.x = 0
-        self.__ptr.y = 0
+        self.__ptr.x = 0.0
+        self.__ptr.y = 0.0
         self.__ptr.frame = 0
         self.__ptr.sheet = sheet.pointer
         self.__sheet = sheet  # keep alive

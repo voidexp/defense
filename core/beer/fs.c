@@ -2,6 +2,7 @@
 
 #include "error.h"
 #include "fs.h"
+#include "memory.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdarg.h>
@@ -133,8 +134,8 @@ beer_file_read(const char *path, char **r_data, size_t *r_size)
 			goto cleanup;
 		}
 
-		*r_data = malloc(size + 1);
-		if (!*r_data)
+		err = beer_alloc(size + 1, (void**)r_data);
+		if (err)
 		{
 			err = BEER_ERR_NO_MEM;
 			goto cleanup;
@@ -147,6 +148,9 @@ beer_file_read(const char *path, char **r_data, size_t *r_size)
 			err = BEER_ERR_IO;
 			goto cleanup;
 		}
+
+		// do not forget the additional byte for NUL-terminator
+		size++;
 	}
 
 cleanup:
@@ -160,7 +164,7 @@ cleanup:
 
 	if (err)
 	{
-		free(*r_data);
+		beer_free(*r_data);
 		*r_data = NULL;
 		size = 0;
 	}

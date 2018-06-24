@@ -1,9 +1,13 @@
-#include <Python.h>
+#include <Python.h> // must be first
+
 #include "error.h"
 #include "fs.h"
+#include "memory.h"
 #include "script.h"
 #include <assert.h>
+#include <stdarg.h>
 #include <stdbool.h>
+#include <string.h>
 
 #ifdef DEBUG
 # include <stdio.h>
@@ -11,31 +15,35 @@
 
 #define INIT_FUNC_NAME "init"
 #define FINI_FUNC_NAME "fini"
+#define UPDATE_FUNC_NAME "update"
 
 static const char *funcs_names[] = {
 	INIT_FUNC_NAME,
 	FINI_FUNC_NAME,
+	UPDATE_FUNC_NAME,
 };
 
 enum {
 	INIT_FUNC,
 	FINI_FUNC,
+	UPDATE_FUNC,
 	FUNC_MAX,
 };
 
 struct ScriptData
 {
-	PyObject *init_func;
-	PyObject *fini_func;
+	PyObject *funcs[FUNC_MAX];
 };
 
 static beer_err
-call_no_args(PyObject *callable)
+call(struct BeerScript *script, int func, const char *pyarg_fmt, ...)
 {
+	PyObject *callable = ((struct ScriptData*)script->data_)->funcs[func];
 	if (callable)
 	{
-		// call the function with empty *args tuple, i.e. no args
-		PyObject *args = Py_BuildValue("()");
+		va_list vargs;
+		va_start(vargs, pyarg_fmt);
+		PyObject *args = Py_VaBuildValue(pyarg_fmt, vargs);
 		PyObject *result = PyObject_Call(callable, args, NULL);
 		Py_XDECREF(args);
 		if (!result)
@@ -148,36 +156,29 @@ beer_script_load(const char *path, struct BeerScript **r_script)
 		funcs[i] = func;
 	}
 
+	err = beer_new(struct BeerScript, r_script);
+	if (err)
+	{
+		goto error;
+	}
+
+	struct ScriptData *data = NULL;
+	err = beer_new(struct ScriptData, &data);
+	if (err)
+	{
+		beer_free(*r_script);
+		*r_script = NULL;
+		goto error;
+	}
+
+	(*r_script)->data_ = data;
+	(*r_script)->path = strdup(path);
+	memcpy(data->funcs, funcs, sizeof(funcs));
+
 cleanup:
 	Py_XDECREF(context);
 	Py_XDECREF(eval);
-	free(script);
-
-	if (!err)
-	{
-		*r_script = malloc(sizeof(struct BeerScript));
-		if (!*r_script)
-		{
-			err = BEER_ERR_NO_MEM;
-			goto error;
-		}
-		memset(*r_script, 0, sizeof(struct BeerScript));
-
-		struct ScriptData *data = malloc(sizeof(struct ScriptData));
-		if (!data)
-		{
-			err = BEER_ERR_NO_MEM;
-			free(*r_script);
-			*r_script = NULL;
-			goto error;
-		}
-		memset(data, 0, sizeof(struct ScriptData));
-
-		(*r_script)->data_ = data;
-		(*r_script)->path = strdup(path);
-		data->init_func = funcs[INIT_FUNC];
-		data->fini_func = funcs[FINI_FUNC];
-	}
+	beer_free(script);
 
 	return err;
 
@@ -196,13 +197,9 @@ beer_script_free(struct BeerScript *script)
 	if (script)
 	{
 		struct ScriptData *data = (struct ScriptData*)script->data_;
-		PyObject *funcs[] = {
-			data->init_func,
-			data->fini_func
-		};
 		for (int i = 0; i < FUNC_MAX; i++)
 		{
-			Py_XDECREF(funcs[i]);
+			Py_XDECREF(data->funcs[i]);
 		}
 		free(script->data_);
 		free(script);
@@ -213,16 +210,19 @@ beer_err
 beer_script_invoke_init(struct BeerScript *script)
 {
 	assert(script);
-
-	struct ScriptData *data = (struct ScriptData*)script->data_;
-	return call_no_args(data->init_func);
+	return call(script, INIT_FUNC, "()");
 }
 
 beer_err
 beer_script_invoke_fini(struct BeerScript *script)
 {
 	assert(script);
+	return call(script, FINI_FUNC, "()");
+}
 
-	struct ScriptData *data = (struct ScriptData*)script->data_;
-	return call_no_args(data->fini_func);
+beer_err
+beer_script_invoke_update(struct BeerScript *script, float dt)
+{
+	assert(script);
+	return call(script, UPDATE_FUNC, "(f)", dt);
 }

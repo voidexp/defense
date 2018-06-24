@@ -23,3 +23,6 @@ beer_script_invoke_init(struct BeerScript *script);
 
 BEER_API beer_err
 beer_script_invoke_fini(struct BeerScript *script);
+
+BEER_API beer_err
+beer_script_invoke_update(struct BeerScript *script, float dt);

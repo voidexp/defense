@@ -38,7 +38,7 @@ beer_init(unsigned win_w, unsigned win_h)
 	g_renderer = SDL_CreateRenderer(
 		g_window,
 		-1,
-		SDL_RENDERER_ACCELERATED
+		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
 	);
 	if (!g_renderer)
 	{
@@ -70,13 +70,16 @@ beer_init(unsigned win_w, unsigned win_h)
 }
 
 beer_err
-beer_start(void)
+beer_run(bool (*update)(float))
 {
 	SDL_Event evt;
 	beer_err err = BEER_OK;
 	bool run = true;
 
-	while (run && !err)
+	Uint32 last_update = SDL_GetTicks(), now;
+	float dt;
+
+	while (run)
 	{
 		while (SDL_PollEvent(&evt))
 		{
@@ -88,11 +91,15 @@ beer_start(void)
 			}
 		}
 
-		if ((err = beer_renderer_clear()) ||
-		    (err = beer_renderer_present()))
-		{
-			break;
-		}
+		now = SDL_GetTicks();
+		dt = (now - last_update) / 1000.0f;
+		last_update = now;
+
+		run &= (
+			(update != NULL ? update(dt) : true) &&
+			(err = beer_renderer_clear()) == BEER_OK &&
+			(err = beer_renderer_present()) == BEER_OK
+		);
 	}
 
 	return err;

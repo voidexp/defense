@@ -64,8 +64,8 @@ render_sprite(struct BeerSprite *sprite)
 		.h = (int)rect.height,
 	};
 	SDL_Rect dst = src;
-	dst.x = sprite->x;
-	dst.y = sprite->y;
+	dst.x = roundf(sprite->x);
+	dst.y = roundf(sprite->y);
 
 	int result = SDL_RenderCopy(
 		g_renderer,
