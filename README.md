@@ -50,7 +50,7 @@ _NOTE: these packages are required by build scripts._
 
 Install the game runtime packages into engine's directory:
 
-    pip install -t core/beer/python requirements-game.txt
+    pip install -t core/beer/python/site-packages requirements-game.txt
 
 _NOTE: these packages are available to game's Python runtime for import, add
 there anything you'd need._

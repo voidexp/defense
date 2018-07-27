@@ -68,9 +68,19 @@ beer_py_init(void)
 	}
 
 	PyObject *syspath = PySys_GetObject("path");
-	PyObject *modpath = Py_BuildValue("s", "core/beer/python");
-	PyList_Append(syspath, modpath);
-	Py_DECREF(modpath);
+
+	const char *paths[] = {
+		"core/beer/python",
+		"core/beer/python/site-packages",
+		NULL
+	};
+
+	for (unsigned i = 0; paths[i]; i++)
+	{
+		PyObject *modpath = Py_BuildValue("s", paths[i]);
+		PyList_Append(syspath, modpath);
+		Py_DECREF(modpath);
+	}
 
 #ifdef DEBUG
 	printf("Python initialized\n");

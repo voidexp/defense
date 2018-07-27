@@ -5,7 +5,4 @@ _beer.c
 build
 dist
 __pycache__
-PIL
-Pillow*
-cffi/
-pycparser/
+site-packages
