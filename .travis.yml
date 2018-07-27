@@ -16,14 +16,13 @@ addons:
     sources:
       - deadsnakes
     packages:
-      - libsdl2-dev
       - fuse
       - libfuse-dev
       - python3.6-dev
       - python3.6-venv
       - pkg-config
 
-before_install:
+install:
   - eval "${TOOLCHAIN}"
   - sudo modprobe fuse
   - sudo chmod 666 /dev/fuse
