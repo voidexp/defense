@@ -6,9 +6,13 @@ import time
 from beer.texture import Texture
 from beer.sprite import Sheet
 from beer.sprite import Sprite
+from beer.event import get_key_state
+from beer.event import KeyCode
 
 
 sprite = None
+
+keys = {code: False for code in KeyCode}
 
 
 def init():
@@ -32,6 +36,13 @@ def init():
 def update(dt):
     sprite.x += dt * 10
 
+    global keys
+    current_keys = {code: get_key_state(code).pressed for code in KeyCode}
+    for code in KeyCode:
+        if current_keys[code] != keys[code]:
+            state = 'pressed' if current_keys[code] else 'released'
+            keys[code] = current_keys[code]
+            print(f'{code.name} key {state}')
 
 def fini():
     print('Defense finalized')

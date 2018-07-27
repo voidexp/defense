@@ -1,5 +1,6 @@
 #pragma once
 
+#include "event.h"
 #include "error.h"
 #include "fs.h"
 #include "init.h"

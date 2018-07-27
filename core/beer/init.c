@@ -12,6 +12,9 @@ beer_py_init(void);
 extern void
 beer_py_fini(void);
 
+extern void
+handle_sdl_event(const SDL_Event *evt);
+
 static bool initialized = false;
 
 beer_err
@@ -83,11 +86,14 @@ beer_run(bool (*update)(float))
 	{
 		while (SDL_PollEvent(&evt))
 		{
-			switch (evt.type)
+			if (evt.type == SDL_QUIT)
 			{
-			case SDL_QUIT:
 				run = false;
 				break;
+			}
+			else
+			{
+				handle_sdl_event(&evt);
 			}
 		}
 

@@ -12,6 +12,10 @@ ffibuilder.set_source('_beer', """
 ffibuilder.cdef("""
 typedef int beer_err;
 
+enum {
+    BEER_OK
+};
+
 struct BeerRect
 {
     int x;
@@ -71,6 +75,26 @@ beer_renderer_add_sprite_node(struct BeerSprite *sprite, struct BeerRenderNode *
 
 beer_err
 beer_renderer_remove_node(struct BeerRenderNode *node);
+
+enum BeerKeyCode
+{
+    BEER_KEY_UNKNOWN,
+    BEER_KEY_W,
+    BEER_KEY_A,
+    BEER_KEY_S,
+    BEER_KEY_D,
+    BEER_KEY_ESC,
+    BEER_KEY_SPACE,
+    BEER_KEY_MAX
+};
+
+struct BeerKeyState
+{
+    bool pressed;
+};
+
+beer_err
+beer_key_get_state(enum BeerKeyCode key, struct BeerKeyState *r_state);
 """)
 
 
