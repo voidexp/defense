@@ -49,6 +49,6 @@ script:
   - source .env/bin/activate
   - python -m pip install --upgrade pip
   - python -m pip install -r requirements.txt
-  - python -m pip install -t core/beer/python -r core/beer/python/requirements-game.txt
+  - python -m pip install -t core/beer/python/site-packages -r core/beer/python/requirements.txt
   - PKG_CONFIG_PATH=$SDL_PREFIX/lib/pkgconfig python configure.py
   - $TUP_PREFIX/tup

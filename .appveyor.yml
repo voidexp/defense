@@ -35,6 +35,6 @@ build_script:
   - .env\Scripts\activate
   - python -m pip install --upgrade pip
   - python -m pip install -r requirements.txt
-  - python -m pip install -t core\beer\python -r core\beer\python\requirements-game.txt
+  - python -m pip install -t core\beer\python\site-packages -r core\beer\python\requirements.txt
   - python configure.py --sdl-incpath=%SDL2_SDK%\include --sdl-libpath=%SDL2_SDK%\lib\x64 --python-incpath=%PYTHON3_SDK%\include --python-libpath=%PYTHON3_SDK%\libs
   - tup
