@@ -1,10 +1,15 @@
-from _beer import lib, ffi  # pylint: disable=import-error,no-name-in-module
-from enum import IntEnum
-from enum import unique
+"""
+OS event handling API layer (keyboard, mouse, WM, etc.).
+"""
+from enum import IntEnum, unique
+from _beer import ffi, lib
 
 
 @unique
 class KeyCode(IntEnum):
+    """
+    List of supported keys.
+    """
 
     W = lib.BEER_KEY_W
     A = lib.BEER_KEY_A
@@ -15,6 +20,9 @@ class KeyCode(IntEnum):
 
 
 class KeyState:
+    """
+    Keyboard key state.
+    """
 
     pressed: bool
 
@@ -23,8 +31,10 @@ class KeyState:
 
 
 def get_key_state(code: KeyCode) -> KeyState:
+    """
+    Retrieves the state of a given key.
+    """
     state = ffi.new('struct BeerKeyState*')
     if lib.beer_key_get_state(code, state) != lib.BEER_OK:
         raise RuntimeError(f'invalid key {code}')
     return KeyState(state.pressed)
-

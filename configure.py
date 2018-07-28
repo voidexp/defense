@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
-from functools import partial
-from itertools import chain
-import click
 import collections
-import pystache as mustache
 import os
 import platform
-import sys
 import subprocess as sp
+import sys
+from functools import partial
+from itertools import chain
 
+import click
+import pystache as mustache
 
 PROJECT_PATH = os.getcwd()
 
@@ -78,7 +78,9 @@ CompilerSpec = collections.namedtuple(
 class UnsupportedPlatformError(RuntimeError):
 
     def __init__(self):
-        super(UnsupportedPlatformError, self).__init__('unsupported platform "{}"'.format(sys.platform))
+        super(UnsupportedPlatformError, self).__init__(
+            'unsupported platform "{}"'.format(sys.platform)
+        )
 
 
 class Config():
@@ -118,8 +120,12 @@ class Config():
             'executable': self.executable,
         }
 
-        config.update({'{}_cflags'.format(key): ' '.join(sorted(value)) for key, value in self.cflags.items()})
-        config.update({'{}_ldflags'.format(key): ' '.join(sorted(value)) for key, value in self.ldflags.items()})
+        config.update({
+            '{}_cflags'.format(key): ' '.join(sorted(value)) for key, value in self.cflags.items()
+        })
+        config.update({
+            '{}_ldflags'.format(key): ' '.join(sorted(value)) for key, value in self.ldflags.items()
+        })
 
         return config
 
@@ -136,14 +142,14 @@ def find_executable(executable, path=None):
     paths = path.split(os.pathsep)
     extlist = ['']
     if os.name == 'os2':
-        (base, ext) = os.path.splitext(executable)
+        (_, ext) = os.path.splitext(executable)
         # executable files on OS/2 can have an arbitrary extension, but
         # .exe is automatically appended if no dot is present in the name
         if not ext:
             executable = executable + ".exe"
     elif sys.platform == 'win32':
         pathext = os.environ['PATHEXT'].lower().split(os.pathsep)
-        (base, ext) = os.path.splitext(executable)
+        (_, ext) = os.path.splitext(executable)
         if ext.lower() not in pathext:
             extlist = pathext
     for ext in extlist:
@@ -155,8 +161,7 @@ def find_executable(executable, path=None):
                 f = os.path.join(p, execname)
                 if os.path.isfile(f):
                     return f
-    else:
-        return None
+    return None
 
 
 def check_gcc(debug):
@@ -180,6 +185,8 @@ def check_gcc(debug):
             lib_dir_flag='-L{}',
             lib_flag='-l{}'
         )
+
+    return None
 
 
 def check_msvc(debug):
@@ -205,6 +212,8 @@ def check_msvc(debug):
             lib_dir_flag='/LIBPATH:{}',
             lib_flag='{}.lib'
         )
+
+    return None
 
 
 COMPILERS = {
@@ -256,6 +265,8 @@ def find_lib(config, lib_name, store_name=None):
                 ldflags.add(config.compiler_spec.lib_flag.format(lib_name))
                 return True
 
+    return False
+
 
 def find_header(config, header_name, store_name=None):
     if store_name is None:
@@ -269,6 +280,8 @@ def find_header(config, header_name, store_name=None):
                 cflags.add(config.compiler_spec.inc_dir_flag.format(path))
                 return True
 
+    return False
+
 
 def find_sdl2(config):
     if IS_WINDOWS:
@@ -278,8 +291,7 @@ def find_sdl2(config):
             (find_lib(config, lib, 'sdl') for lib in libs),
             (find_header(config, header, 'sdl') for header in headers)
         ))
-    else:
-        return find_pkg_config(config, 'sdl2', 'sdl')
+    return find_pkg_config(config, 'sdl2', 'sdl')
 
 
 def find_python3(config):
@@ -290,8 +302,7 @@ def find_python3(config):
             (find_lib(config, lib, 'python') for lib in libs),
             (find_header(config, header, 'python') for header in headers)
         ))
-    else:
-        return find_pkg_config(config, 'python-3.6', 'python')
+    return find_pkg_config(config, 'python-3.6', 'python')
 
 
 def generate_files(config):
@@ -338,7 +349,7 @@ def lib_options(lib_specs):
 @click.option('--executable', type=str, default=EXECUTABLE_NAME,
               help='output executable (default: "{}")'.format(EXECUTABLE_NAME))
 @lib_options(FINDERS)
-def configure(executable, **kwargs):
+def configure(executable=EXECUTABLE_NAME, **kwargs):
     """Configures the project and creates the building configuration."""
 
     def get_paths(suffix):

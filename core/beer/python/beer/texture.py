@@ -1,7 +1,6 @@
-from _beer import lib, ffi  # pylint: disable=import-error,no-name-in-module
+from enum import IntEnum, unique
 from PIL import Image
-from enum import IntEnum
-from enum import unique
+from _beer import ffi, lib
 
 
 @unique

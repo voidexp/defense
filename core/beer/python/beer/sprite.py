@@ -1,7 +1,13 @@
-from _beer import lib, ffi  # pylint: disable=import-error,no-name-in-module
+"""
+2D sprite creation and rendering module.
+"""
+from _beer import lib, ffi
 
 
 class Sheet:
+    """
+    Spritesheet geometry on top of a texture.
+    """
 
     def __init__(self, texture, frames):
         self.__frames = ffi.new('struct BeerRect[{}]'.format(len(frames)))
@@ -21,6 +27,9 @@ class Sheet:
 
 
 class Sprite:
+    """
+    2D sprite.
+    """
 
     def __init__(self, sheet):
         self.__ptr = ffi.new('struct BeerSprite*')
