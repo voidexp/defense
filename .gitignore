@@ -1,3 +1,4 @@
 /Tuprules.tup
 /.tup
 .DS_Store
+.tox

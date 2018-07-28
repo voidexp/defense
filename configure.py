@@ -202,10 +202,10 @@ def check_msvc(debug):
             ldflags = ''
 
         return CompilerSpec(
-            cc_rule='{path} /TC /nologo /Fo:%o $(CFLAGS) /c %f'.format(path=cl_path),
-            link_rule='{path} /NOLOGO /OUT:%o $(LDFLAGS) /SUBSYSTEM:WINDOWS %f'.format(path=link_path),
-            dylib_link_rule='{path} /NOLOGO /OUT:%o /IMPLIB:%O.lib /DLL $(LDFLAGS) /SUBSYSTEM:WINDOWS %f'.format(path=link_path),
-            stlib_link_rule='{path} /NOLOGO /OUT:%o $(LDFLAGS) /SUBSYSTEM:WINDOWS %f'.format(path=lib_path),
+            cc_rule=f'{cl_path} /TC /nologo /Fo:%o $(CFLAGS) /c %f',
+            link_rule=f'{link_path} /NOLOGO /OUT:%o $(LDFLAGS) /SUBSYSTEM:WINDOWS %f',
+            dylib_link_rule=f'{link_path} /NOLOGO /OUT:%o /IMPLIB:%O.lib /DLL $(LDFLAGS) /SUBSYSTEM:WINDOWS %f',
+            stlib_link_rule=f'{lib_path} /NOLOGO /OUT:%o $(LDFLAGS) /SUBSYSTEM:WINDOWS %f',
             cflags=cflags,
             ldflags=ldflags,
             inc_dir_flag='/I {}',
