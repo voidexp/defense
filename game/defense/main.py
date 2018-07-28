@@ -11,7 +11,7 @@ from beer.event import KeyCode
 
 SPRITE = None
 
-KEYS = {code: False for code in KeyCode}
+KEYS = set()
 
 
 def init():
@@ -36,12 +36,13 @@ def update(delta_time):
     SPRITE.x += delta_time * 10
 
     global KEYS  # pylint: disable=global-statement
-    current_keys = {code: get_key_state(code).pressed for code in KeyCode}
-    for code in KeyCode:
-        if current_keys[code] != KEYS[code]:
-            state = 'pressed' if current_keys[code] else 'released'
-            KEYS[code] = current_keys[code]
-            print(f'{code.name} key {state}')
+    current_keys = {code for code in KeyCode if get_key_state(code).pressed}
+    for pressed in current_keys - KEYS:
+        print(f'{pressed.name} pressed!')
+    for released in KEYS - current_keys:
+        print(f'{released.name} released!')
+    KEYS = current_keys
+
 
 def fini():
     print('Defense finalized')
