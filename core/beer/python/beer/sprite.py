@@ -1,7 +1,9 @@
 """
 2D sprite creation and rendering module.
 """
+from typing import Sequence, Tuple, Any, cast, Optional
 from _beer import lib, ffi
+from beer.texture import Texture
 
 
 class Sheet:
@@ -9,7 +11,7 @@ class Sheet:
     Spritesheet geometry on top of a texture.
     """
 
-    def __init__(self, texture, frames):
+    def __init__(self, texture: Texture, frames: Sequence[Tuple[int, int, int, int]]) -> None:
         self.__frames = ffi.new('struct BeerRect[{}]'.format(len(frames)))
         for i, frame in enumerate(frames):
             rect = self.__frames[i]
@@ -22,7 +24,7 @@ class Sheet:
         self.__texture = texture  # keep alive
 
     @property
-    def pointer(self):
+    def pointer(self) -> Any:
         return self.__ptr
 
 
@@ -31,42 +33,42 @@ class Sprite:
     2D sprite.
     """
 
-    def __init__(self, sheet):
+    def __init__(self, sheet: Sheet) -> None:
         self.__ptr = ffi.new('struct BeerSprite*')
         self.__ptr.x = 0.0
         self.__ptr.y = 0.0
         self.__ptr.frame = 0
         self.__ptr.sheet = sheet.pointer
-        self.__sheet = sheet  # keep alive
         self.__node = None
+        self.__sheet = cast(Optional[Sheet], sheet)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.visible = False
         self.__ptr.sheet = ffi.NULL
         self.__sheet = None
 
     @property
-    def x(self):
-        return self.__ptr.x
+    def x(self) -> float:
+        return cast(float, self.__ptr.x)
 
     @x.setter
-    def x(self, value):
+    def x(self, value: float) -> None:
         self.__ptr.x = value
 
     @property
-    def y(self):
-        return self.__ptr.y
+    def y(self) -> float:
+        return cast(float, self.__ptr.y)
 
     @y.setter
-    def y(self, value):
+    def y(self, value: float) -> None:
         self.__ptr.y = value
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         return self.__node is not None
 
     @visible.setter
-    def visible(self, flag):
+    def visible(self, flag: bool) -> None:
         if flag and self.__node is None:
             node = ffi.new('struct BeerRenderNode**', ffi.NULL)
             if lib.beer_renderer_add_sprite_node(self.__ptr, node) != 0:

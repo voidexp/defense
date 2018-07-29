@@ -2,3 +2,4 @@
 /.tup
 .DS_Store
 .tox
+.mypy_cache/

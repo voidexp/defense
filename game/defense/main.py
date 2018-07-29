@@ -2,19 +2,22 @@
 Defense base game entry point.
 """
 
+from typing import Optional, Set
+
+from beer.event import KeyCode, get_key_state
+from beer.sprite import Sheet, Sprite
 from beer.texture import Texture
-from beer.sprite import Sheet
-from beer.sprite import Sprite
-from beer.event import get_key_state
-from beer.event import KeyCode
+
+SPRITE: Optional[Sprite] = None
+
+KEYS: Set[KeyCode] = set()
 
 
-SPRITE = None
 
 KEYS = set()
 
 
-def init():
+def init() -> None:
     global SPRITE  # pylint: disable=global-statement
     # example usage of Texture
     filename = 'game/defense/sprites/characters.png'
@@ -32,8 +35,9 @@ def init():
     print('Defense initialized')
 
 
-def update(delta_time):
-    SPRITE.x += delta_time * 10
+def update(delta_time: float) -> None:
+    if SPRITE:
+        SPRITE.x += delta_time * 10
 
     global KEYS  # pylint: disable=global-statement
     current_keys = {code for code in KeyCode if get_key_state(code).pressed}
@@ -44,5 +48,5 @@ def update(delta_time):
     KEYS = current_keys
 
 
-def fini():
+def fini() -> None:
     print('Defense finalized')

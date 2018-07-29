@@ -1,3 +1,5 @@
 Pillow==5.1.0
+PyTMX==3.21.5
 cffi==1.11.5
 pycparser==2.18
+six==1.11.0

@@ -26,7 +26,7 @@ class KeyState:
 
     pressed: bool
 
-    def __init__(self, pressed):
+    def __init__(self, pressed: bool) -> None:
         self.pressed = pressed
 
 
