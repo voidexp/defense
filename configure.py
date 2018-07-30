@@ -176,7 +176,7 @@ def check_gcc(debug):
 
         return CompilerSpec(
             cc_rule='{path} $(CFLAGS) -fPIC -c %f -o %o'.format(path=path),
-            link_rule='{path} $(LDFLAGS) %f -o %o'.format(path=path),
+            link_rule='{path} %f $(LDFLAGS) -o %o'.format(path=path),
             dylib_link_rule='{path} $(LDFLAGS) -shared %f -o %o'.format(path=path),
             stlib_link_rule='{path} -Wl,-r -no-pie %f -o %o -nostdlib'.format(path=path),
             cflags=cflags,
