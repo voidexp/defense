@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <SDL.h>
 
-#define RENDER_LIST_LEN 256
+#define RENDER_LIST_LEN 2048
 
 extern SDL_Renderer *g_renderer;
 

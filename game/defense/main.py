@@ -2,43 +2,54 @@
 Defense base game entry point.
 """
 
-from typing import Optional, Set
+from typing import Dict, Set, Tuple, List
 
+import pytmx
 from beer.event import KeyCode, get_key_state
 from beer.sprite import Sheet, Sprite
 from beer.texture import Texture
 
-SPRITE: Optional[Sprite] = None
+SPRITES = []
 
 KEYS: Set[KeyCode] = set()
 
 
+def load_map(tiled_map_filename: str) -> None:
+    tiled_map = pytmx.TiledMap(tiled_map_filename)
 
-KEYS = set()
+    sheet_tiles: Dict[str, List[Tuple[int, int, int, int]]] = {}
+
+    for filename, rect, _ in (spec for spec in tiled_map.images if spec is not None):
+        sheet_tiles.setdefault(filename, []).append(rect)
+
+    sheet_textures = {
+        filename: Texture(filename) for filename in sheet_tiles
+    }
+
+    sheets = {
+        filename: Sheet(sheet_textures[filename], sheet_tiles[filename])
+        for filename in sheet_tiles
+    }
+
+    for layer in tiled_map.layers:
+        for x, y, (filename, rect, _) in layer.tiles():
+            sprite = Sprite(sheets[filename])
+            sprite.frame = sheet_tiles[filename].index(rect)
+            sprite.x = x * tiled_map.tilewidth
+            sprite.y = y * tiled_map.tileheight
+            sprite.visible = True
+            SPRITES.append(sprite)
+
+    print(f'Map {tiled_map_filename} loaded')
 
 
 def init() -> None:
-    global SPRITE  # pylint: disable=global-statement
-    # example usage of Texture
-    filename = 'game/defense/sprites/characters.png'
-    tex = Texture(filename)
-    print('Loaded {}'.format(filename))
-    print('Size: {}x{} ({})'.format(tex.width, tex.height, tex.format))
-
-    frames = ((0, 102, 16, 16),)
-    sheet = Sheet(tex, frames)
-    SPRITE = Sprite(sheet)
-    SPRITE.visible = True
-    SPRITE.x = 800 / 2 - 16 / 2
-    SPRITE.y = 600 / 2 - 16 / 2
+    load_map('game/defense/maps/01_demo.tmx')
 
     print('Defense initialized')
 
 
 def update(delta_time: float) -> None:
-    if SPRITE:
-        SPRITE.x += delta_time * 10
-
     global KEYS  # pylint: disable=global-statement
     current_keys = {code for code in KeyCode if get_key_state(code).pressed}
     for pressed in current_keys - KEYS:

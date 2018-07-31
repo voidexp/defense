@@ -64,6 +64,14 @@ class Sprite:
         self.__ptr.y = value
 
     @property
+    def frame(self) -> int:
+        return cast(int, self.__ptr.frame)
+
+    @frame.setter
+    def frame(self, index: int) -> None:
+        self.__ptr.frame = index
+
+    @property
     def visible(self) -> bool:
         return self.__node is not None
 
