@@ -19,4 +19,9 @@
  <tile id="116" terrain="1,0,1,1"/>
  <tile id="117" terrain="0,0,1,1"/>
  <tile id="118" terrain="0,1,1,1"/>
+ <tile id="640">
+  <properties>
+   <property name="not_walkable" type="bool" value="true"/>
+  </properties>
+ </tile>
 </tileset>

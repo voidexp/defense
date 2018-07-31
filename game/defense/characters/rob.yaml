@@ -1,0 +1,8 @@
+sprite:
+  sheet: characters.png
+  x: 0
+  y: 102
+  w: 16
+  h: 16
+
+speed: 32
