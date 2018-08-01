@@ -3,7 +3,7 @@ Defense base game entry point.
 """
 
 from typing import Dict, Set, Tuple, List, Any, Optional
-
+import math
 import os
 import pytmx
 import yaml
@@ -15,9 +15,55 @@ SPRITES = []
 
 KEYS: Set[KeyCode] = set()
 
-CHARACTER: Optional[Sprite] = None
-
 MAP: Any = None
+
+
+class Mob:
+
+    speed: float
+
+    def __init__(self, sprite: Sprite, speed: float) -> None:
+        self.__sprite = sprite
+        self.__dst_x = sprite.x
+        self.__dst_y = sprite.y
+        self.__time_acc = 0.0
+        self.speed = speed
+
+    @property
+    def destination(self) -> Tuple[float, float]:
+        return (self.__dst_x, self.__dst_y)
+
+    @destination.setter
+    def destination(self, dst: Tuple[int, int]) -> None:
+        self.__dst_x, self.__dst_y = dst
+
+    @property
+    def is_moving(self) -> bool:
+        return self.__sprite.x != self.__dst_x or self.__sprite.y != self.__dst_y
+
+    def update(self, dt: float) -> None:
+        if not self.is_moving:
+            self.__time_acc = 0.0
+            return
+
+        self.__time_acc += dt
+        t = 1.0 / self.speed
+
+        while self.__time_acc >= t:
+            dx = self.__dst_x - self.__sprite.x
+            if math.fabs(dx) > 0:
+                dx = math.copysign(1, dx)
+
+            dy = self.__dst_y - self.__sprite.y
+            if math.fabs(dy) > 0:
+                dy = math.copysign(1, dy)
+
+            self.__sprite.x += dx
+            self.__sprite.y += dy
+            self.__time_acc -= dt
+
+
+CHARACTER: Optional[Mob] = None
 
 
 def load_map(tiled_map_filename: str) -> None:
@@ -72,6 +118,8 @@ def load_character(character_filename: str) -> None:
         sprite.x = MAP.tilewidth * spawn_x
         sprite.y = MAP.tileheight * spawn_y
 
+        CHARACTER = Mob(sprite, 16)
+
 
 def init() -> None:
     load_map('game/defense/maps/01_demo.tmx')
@@ -81,7 +129,7 @@ def init() -> None:
 
 
 def update(delta_time: float) -> None:
-    global KEYS  # pylint: disable=global-statement
+    global KEYS, MAP, CHARACTER  # pylint: disable=global-statement
     current_keys = {code for code in KeyCode if get_key_state(code).pressed}
     for pressed in current_keys - KEYS:
         print(f'{pressed.name} pressed!')
@@ -89,6 +137,26 @@ def update(delta_time: float) -> None:
         print(f'{released.name} released!')
     KEYS = current_keys
 
+    if CHARACTER:
+        if not CHARACTER.is_moving:
+            tw = MAP.tilewidth
+            th = MAP.tileheight
+            dst_x, dst_y = CHARACTER.destination
+
+            if KeyCode.W in KEYS:
+                dst_y -= th
+            elif KeyCode.S in KEYS:
+                dst_y += th
+            elif KeyCode.A in KEYS:
+                dst_x -= tw
+            elif KeyCode.D in KEYS:
+                dst_x += tw
+
+            dst = (dst_x, dst_y)
+            if CHARACTER.destination != dst:
+                CHARACTER.destination = dst
+
+        CHARACTER.update(delta_time)
 
 def fini() -> None:
     print('Defense finalized')
